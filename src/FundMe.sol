@@ -17,6 +17,7 @@ contract FundMe {
     using PriceConverter for uint256;
     // using MathLibrary for uint256;
     // uint256[] public numbers;
+
     uint256 public constant MINIMUM_USD = 2e18;
     address[] private s_funders;
     // address public owner = msg.sender;
@@ -34,10 +35,7 @@ contract FundMe {
     }
 
     function fund() public payable {
-        require(
-            msg.value.getConversionRate(s_priceFeed) > MINIMUM_USD,
-            "bye bye"
-        );
+        require(msg.value.getConversionRate(s_priceFeed) > MINIMUM_USD, "bye bye");
         s_funders.push(msg.sender);
         s_addressToAmountFunded[msg.sender] += msg.value;
     }
@@ -47,11 +45,7 @@ contract FundMe {
     }
 
     function withdraw() public onlyOwner {
-        for (
-            uint256 funderIndex = 0;
-            funderIndex < s_funders.length;
-            funderIndex++
-        ) {
+        for (uint256 funderIndex = 0; funderIndex < s_funders.length; funderIndex++) {
             address funder = s_funders[funderIndex];
             s_addressToAmountFunded[funder] = 0;
         }
@@ -62,26 +56,18 @@ contract FundMe {
         // bool success= payable(msg.sender).send(address(this).balance); //send function
         // require(success,"Failed");
 
-        (bool finish, ) = payable(msg.sender).call{
-            value: address(this).balance
-        }(""); // call function
+        (bool finish,) = payable(msg.sender).call{value: address(this).balance}(""); // call function
         require(finish, "failed");
     }
 
     function cheaperWithdraw() public onlyOwner {
         uint256 fundersLength = s_funders.length;
-        for (
-            uint256 funderIndex = 0;
-            funderIndex < fundersLength;
-            funderIndex++
-        ) {
+        for (uint256 funderIndex = 0; funderIndex < fundersLength; funderIndex++) {
             address funder = s_funders[funderIndex];
             s_addressToAmountFunded[funder] = 0;
         }
         s_funders = new address[](0);
-        (bool callSuccess, ) = payable(msg.sender).call{
-            value: address(this).balance
-        }("");
+        (bool callSuccess,) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
     }
 
@@ -141,9 +127,7 @@ contract FundMe {
 
     //Getter function
 
-    function getAddressToAmountFunded(
-        address fundingAddress
-    ) public view returns (uint256) {
+    function getAddressToAmountFunded(address fundingAddress) public view returns (uint256) {
         return s_addressToAmountFunded[fundingAddress];
     }
 
